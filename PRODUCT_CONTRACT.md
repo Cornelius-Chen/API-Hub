@@ -64,8 +64,10 @@ distributed rate limiting, and network egress controls are not claimed complete.
 
 The internal `/gateway/v1` contract accepts application tokens and stable
 capability identifiers. It enforces application state, capability grants, budget,
-RPM, and daily limits and records metadata-only invocation decisions. Current
-execution is strictly `dry_run`; no provider network request is sent.
+RPM, and daily limits and records metadata-only invocation decisions. Execution
+defaults to `dry_run`; a provider network request requires a reviewed adapter
+and an explicit local activation record. The included DeepSeek adapter is scoped
+to the authorized development environment.
 
 ## Completion Floor
 

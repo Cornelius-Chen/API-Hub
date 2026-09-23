@@ -9,7 +9,7 @@ and credentials are not Agent inputs.
 ## Build and locate
 
 ```powershell
-cd D:\Creativity\API_Hub
+cd <path-to-api-hub-repo>
 npm run build:sdk
 ```
 

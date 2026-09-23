@@ -4,6 +4,31 @@ Local API capability control plane MVP. This source release excludes local
 runtime databases, vault keys, credentials, and generated packages. It is not a
 production secret vault.
 
+![API Hub architecture](docs/images/architecture.png)
+
+Applications and agents request named capabilities through scoped tokens. The
+Gateway checks grants and policy before routing to a reviewed adapter. Calls are
+dry-run by default; a real provider call requires both a reviewed adapter and
+explicit local activation. The control plane owns provider inventory, write-only
+credential management, grants, usage, and audit. Provider secrets never enter
+application or agent responses.
+
+## Complete local workflow
+
+1. Start the service and create the local administrator account.
+2. Register a provider and its write-only credential state, then create and
+   activate a capability.
+3. Register an application, grant that capability, and issue a scoped token.
+4. Discover the granted capability and invoke it through `/gateway/v1`.
+   The default result is dry-run, with no provider network call.
+5. Inspect the policy decision, usage, quota provenance, and audit record;
+   revoke the application token and confirm it can no longer invoke.
+
+The [product contract](PRODUCT_CONTRACT.md) defines the ownership and security
+boundaries. [`docs/GATEWAY_API.md`](docs/GATEWAY_API.md) documents the invocation
+contract; [`docs/NEW_SAAS_INTEGRATION.md`](docs/NEW_SAAS_INTEGRATION.md) is the
+application onboarding path.
+
 ## Run from source
 
 Node.js 22.13 or newer is required. From the repository root:

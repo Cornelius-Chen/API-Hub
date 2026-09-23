@@ -87,7 +87,7 @@ rejected for live invocations. Dry-run replay semantics remain available.
 Build the local package once from API Hub:
 
 ```powershell
-cd D:\Creativity\API_Hub
+cd <path-to-api-hub-repo>
 npm run build:sdk
 ```
 
@@ -95,7 +95,7 @@ Install the generated package from a new SaaS backend (use the actual generated
 versioned filename in `dist`):
 
 ```powershell
-npm install "D:\Creativity\API_Hub\dist\local-api-hub-client-0.1.0.tgz"
+npm install "<path-to-api-hub-repo>\dist\local-api-hub-client-0.1.0.tgz"
 ```
 
 ## Node client
