@@ -1,0 +1,22 @@
+{
+  "name": "api-hub-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "build:launcher": "powershell -NoProfile -ExecutionPolicy Bypass -File src/desktop/build-launcher.ps1",
+    "test:launcher": "powershell -NoProfile -Command \"$p=Start-Process -FilePath 'dist/API Hub Launcher.exe' -ArgumentList '--verify' -Wait -PassThru; exit $p.ExitCode\"",
+    "build:portable": "powershell -NoProfile -ExecutionPolicy Bypass -File src/desktop/build-portable.ps1",
+    "test:portable": "powershell -NoProfile -ExecutionPolicy Bypass -File tests/portable-lifecycle.ps1",
+    "build:sdk": "npm pack ./src/sdk/node --pack-destination ./dist",
+    "activate:deepseek:dev": "node scripts/activate-deepseek-development.js",
+    "smoke:deepseek:dev": "node scripts/smoke-deepseek-development.js",
+    "check": "node --check server.js && node --check src/database.js && node --check src/security.js && node --check src/gateway/execution-engine.js && node --check src/gateway/live-activation.js && node --check src/gateway/adapters/deepseek.js && node --check src/api-hub-client.js && node --check src/sdk/node/index.js && node --check src/sdk/node/cli.js && node --check src/sdk/node/mcp.js && node --check scripts/activate-deepseek-development.js && node --check scripts/smoke-deepseek-development.js && node --check public/i18n.js && node --check public/app.js && node --check tests/isolation.test.js && node --check tests/execution-engine.test.js && node --check tests/deepseek-adapter.test.js && node --check tests/i18n.test.js && node --check tests/sdk-package.test.js && node --check tests/run.js && node --check src/network.js && node --check tests/multidevice.test.js",
+    "test": "node tests/run.js",
+    "test:multidevice": "node tests/multidevice.test.js"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}

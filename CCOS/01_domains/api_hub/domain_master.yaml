@@ -1,0 +1,67 @@
+version: 1
+domain: api_hub
+status: active
+
+purpose:
+  - Provide the user's SaaS products and agents with one governed API capability layer.
+  - Manage provider metadata, encrypted credential state, capability routing,
+    application access, usage, quota, balance, health, alerts, and audit.
+
+owns:
+  source:
+    - server.js
+    - src/**
+    - public/**
+  records:
+    - docs/**
+    - data/mock/**
+  durable_storage:
+    - data/runtime/**
+  tests:
+    - tests/**
+  generated:
+    - coverage/**
+    - dist/**
+
+boundaries:
+  include:
+    - user_workspace_and_tenant_isolation_contract
+    - provider_catalog
+    - credential_metadata_and_encrypted_storage_contract
+    - capability_registry
+    - application_and_agent_identity
+    - policy_decision
+    - governed_invocation
+    - usage_quota_balance_health_alert_and_audit
+  exclude:
+    - plaintext_secret_retrieval
+    - unrestricted_arbitrary_url_proxy
+    - browser_side_provider_credentials
+    - automatic_payment_mutation
+    - unapproved_production_invocation
+
+security_invariants:
+  - every_domain_record_has_one_user_workspace_owner
+  - cross_user_reads_and_merged_responses_are_forbidden
+  - secret_values_are_write_only
+  - provider_credentials_never_reach_client_apps_or_agents
+  - each_invocation_has_identity_policy_route_usage_and_audit
+  - estimate_and_official_data_sources_are_distinguished
+  - logs_are_metadata_only_by_default
+
+storage_policy:
+  root: data/runtime
+  owner: api_hub
+  lifecycle: durable_local_application_state
+  source_of_truth: local_sqlite_for_mvp
+  server_side_only: true
+  plaintext_secrets_allowed: false
+
+local_vault_policy:
+  algorithm: AES-256-GCM
+  key_path: data/runtime/vault.key
+  key_access: server_side_only
+  ciphertext_path: data/runtime/api-hub.sqlite
+  secret_readback: forbidden
+  production_status: local_mvp_not_kms
+  rotation_and_backup: requires_explicit_user_confirmation

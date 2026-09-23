@@ -1,0 +1,7 @@
+.env
+.env.*
+data/runtime/**
+!data/runtime/.gitkeep
+dist/
+node_modules/
+*.log

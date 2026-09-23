@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Hub — Control plane</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <section id="authGate" class="auth-gate">
+      <form id="authForm" class="auth-card">
+        <div class="locale-switch auth-locale" aria-label="Language / 语言">
+          <button type="button" data-locale="zh">中文</button><button type="button" data-locale="en">EN</button>
+        </div>
+        <span class="brand-mark">A</span>
+        <p id="authEyebrow">LOCAL SECURITY SETUP</p>
+        <h1 id="authTitle">Create your API Hub administrator</h1>
+        <p id="authCopy">Choose a local username and a password of at least 6 characters. Only a hardened password hash is stored.</p>
+        <label>Username<input id="authUsername" autocomplete="username" required minlength="3" maxlength="40" /></label>
+        <label>Password<input id="authPassword" type="password" autocomplete="new-password" required minlength="6" maxlength="128" /></label>
+        <p id="authError" class="form-error" role="alert"></p>
+        <button class="primary" type="submit" id="authSubmit">Create administrator</button>
+      </form>
+    </section>
+    <div class="shell hidden" id="appShell">
+      <aside class="rail">
+        <div class="brand"><span class="brand-mark">A</span><div><strong>API Hub</strong><small>Private control plane</small></div></div>
+        <nav aria-label="Primary navigation">
+          <button class="nav-item active" data-view="overview"><span>01</span>Overview</button>
+          <button class="nav-item" data-view="analytics"><span>02</span>Analytics</button>
+          <button class="nav-item" data-view="providers"><span>03</span>Providers</button>
+          <button class="nav-item" data-view="capabilities"><span>04</span>Capabilities</button>
+          <button class="nav-item" data-view="applications"><span>05</span>Applications</button>
+          <button class="nav-item" data-view="database"><span>06</span>Database</button>
+          <button class="nav-item" data-view="audit"><span>07</span>Audit</button>
+          <button class="nav-item" data-view="security"><span>08</span>Security</button>
+        </nav>
+        <div class="rail-foot"><span class="secure-dot"></span><div><strong>Vault boundary intact</strong><small>No plaintext secrets exposed</small></div></div>
+      </aside>
+
+      <main>
+        <header class="topbar">
+          <div><p>CONTROL PLANE / DEVELOPMENT</p><h1 id="pageTitle">Operational overview</h1></div>
+          <div class="top-actions">
+            <div class="locale-switch" aria-label="Language / 语言">
+              <button type="button" data-locale="zh">中文</button><button type="button" data-locale="en">EN</button>
+            </div>
+            <div class="user-switcher" aria-label="Authenticated workspace">
+              <span id="userAvatar">CR</span>
+              <strong id="userName">Workspace</strong>
+            </div>
+            <button class="ghost" id="logoutButton">Log out</button><button class="primary" id="registerButton">Rotate credential</button>
+          </div>
+        </header>
+
+        <section id="overviewView" class="view active">
+          <div class="signal-strip">
+            <article><small>Provider health</small><strong id="healthSignal">—</strong><span class="trend good">workspace-scoped health</span></article>
+            <article><small>Month spend</small><strong id="spendSignal">—</strong><span id="budgetSignal" class="trend">workspace budget</span></article>
+            <article><small>Request peak</small><strong id="peakSignal">—</strong><span class="trend warn">highest provider peak</span></article>
+            <article><small>Remaining runway</small><strong id="runwaySignal">—</strong><span class="trend">estimated from current burn</span></article>
+          </div>
+
+          <div class="workspace-grid">
+            <section class="panel provider-panel">
+              <div class="panel-head"><div><p>LIVE PROVIDER MAP</p><h2>Where your capabilities run</h2></div><button class="text-button" data-jump="providers">Inspect inventory →</button></div>
+              <div id="providerPulse" class="provider-pulse"></div>
+            </section>
+            <section class="panel risk-panel">
+              <div class="panel-head"><div><p>NEEDS DECISION</p><h2>Risk queue</h2></div><span class="count" id="riskCount">0</span></div>
+              <div class="risk-list" id="riskList"></div>
+            </section>
+            <section class="panel spend-panel">
+              <div class="panel-head"><div><p>30-DAY CONTROL</p><h2>Spend and peak pressure</h2></div><div class="legend"><span></span>Cost <i></i>Peak</div></div>
+              <div class="chart" aria-label="Recent provider peak and cost evidence"><div class="budget-line"><span>Latest snapshots</span></div><div id="bars" class="bars"></div></div>
+            </section>
+            <section class="panel activity-panel">
+              <div class="panel-head"><div><p>RECENT CONTROL EVENTS</p><h2>What the gateway decided</h2></div><button class="text-button" data-jump="audit">Open audit →</button></div>
+              <div id="auditPreview" class="event-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="analyticsView" class="view">
+          <div class="section-intro analytics-intro">
+            <div><p>GATEWAY ANALYTICS</p><h2>Provider usage, reliability and latency</h2></div>
+            <div class="analytics-range" role="group" aria-label="Analytics range">
+              <button type="button" class="active" data-analytics-range="24h">24 hours</button>
+              <button type="button" data-analytics-range="7d">7 days</button>
+              <button type="button" data-analytics-range="30d">30 days</button>
+            </div>
+          </div>
+
+          <section class="panel analytics-hero">
+            <div class="panel-head">
+              <div><p>CALL VOLUME OVER TIME</p><h2>Calls by API provider</h2></div>
+              <span id="analyticsCapturedAt" class="safe-label">Loading</span>
+            </div>
+            <div id="analyticsLegend" class="analytics-legend" aria-label="Provider color legend"></div>
+            <div id="usageTrendChart" class="analytics-chart" aria-live="polite"></div>
+          </section>
+
+          <div class="analytics-grid">
+            <section class="panel analytics-detail">
+              <div class="panel-head"><div><p>PROVIDER SHARE</p><h2>Calls by provider</h2></div><span class="safe-label">Gateway observed</span></div>
+              <div id="providerVolumeChart" class="analytics-bars"></div>
+            </section>
+            <section class="panel analytics-detail">
+              <div class="panel-head"><div><p>DECISION QUALITY</p><h2>Allowed and denied</h2></div><div class="decision-legend"><span></span>Allowed <i></i>Denied</div></div>
+              <div id="decisionChart" class="analytics-bars"></div>
+            </section>
+            <section class="panel analytics-detail">
+              <div class="panel-head"><div><p>RESPONSE PRESSURE</p><h2>Average latency by provider</h2></div><span class="safe-label">Milliseconds</span></div>
+              <div id="latencyChart" class="analytics-bars"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="providersView" class="view">
+          <div class="section-intro"><div><p>PROVIDER ASSET REGISTER</p><h2>Accounts, endpoints, credentials and quota truth</h2></div><div class="section-actions"><label class="search"><span>⌕</span><input id="providerSearch" placeholder="Search providers" /></label><button class="primary" id="addProviderButton">Add provider</button></div></div>
+          <div id="providerTable" class="data-table"></div>
+          <section class="panel metric-history-panel">
+            <div class="panel-head"><div><p>APPEND-ONLY EVIDENCE</p><h2>Quota, spend and peak history</h2></div><span class="safe-label">Source labeled</span></div>
+            <div id="metricHistory" class="metric-history"></div>
+          </section>
+        </section>
+
+        <section id="capabilitiesView" class="view">
+          <div class="section-intro"><div><p>STABLE BUSINESS CONTRACTS</p><h2>Applications ask for capabilities, never provider keys</h2></div><button class="primary" id="proposeCapabilityButton">Propose capability</button></div>
+          <div id="capabilityList" class="capability-list"></div>
+          <section class="panel proposal-panel">
+            <div class="panel-head"><div><p>REVIEW QUEUE</p><h2>Candidate capability contracts</h2></div><span class="safe-label">Explicit activation required</span></div>
+            <div id="capabilityProposalList" class="proposal-list"></div>
+          </section>
+        </section>
+
+        <section id="applicationsView" class="view">
+          <div class="section-intro"><div><p>APPLICATION ACCESS</p><h2>Budgets, agents, grants and gateway identities</h2></div><button class="primary" id="registerApplicationButton">Register application</button></div>
+          <section class="usage-observation">
+            <div class="panel-head"><div><p>GATEWAY OBSERVED · UTC DAY</p><h2>Calls, policy denials and peak pressure</h2></div><span id="usageCapturedAt" class="safe-label">Loading</span></div>
+            <div id="usageSummary" class="usage-summary"></div>
+            <div id="capabilityUsage" class="capability-usage"></div>
+          </section>
+          <div id="applicationList" class="application-list"></div>
+          <section class="panel integration-panel">
+            <div class="panel-head"><div><p>STANDARD INTEGRATION</p><h2>Every SaaS calls capabilities through one contract</h2></div><span class="safe-label">No provider keys leave the vault</span></div>
+            <pre><code>POST /gateway/v1/invoke
+Authorization: Bearer ah_dev_••••
+Content-Type: application/json
+
+{"capability":"ai.text.generate","input":{...}}</code></pre>
+            <div id="tokenInventory" class="token-inventory"></div>
+          </section>
+          <section class="panel agent-panel">
+            <div class="panel-head"><div><p>DELEGATED AGENT IDENTITIES</p><h2>Short-lived, least-privilege Gateway access</h2></div><button class="primary" id="registerAgentButton">Register agent</button></div>
+            <div id="agentInventory" class="token-inventory"></div>
+          </section>
+        </section>
+
+        <section id="databaseView" class="view">
+          <div class="section-intro"><div><p>USER DATA NAMESPACE</p><h2>One isolated workspace, governed relational collections</h2></div><span id="databaseOwner" class="safe-label">Loading workspace</span></div>
+          <div class="database-shell">
+            <aside id="collectionList" class="collection-list" aria-label="Database collections"></aside>
+            <section class="record-browser">
+              <div class="record-head"><div><p id="recordRelation">COLLECTION RELATION</p><h2 id="recordTitle">Select a collection</h2></div><span id="recordCount" class="count">0</span></div>
+              <div id="recordTable" class="record-table"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="auditView" class="view">
+          <div class="section-intro"><div><p>IMMUTABLE INTENT TRAIL</p><h2>Identity, policy, route, usage and outcome</h2></div><span class="safe-label">Metadata only</span></div>
+          <div id="auditList" class="audit-full"></div>
+        </section>
+
+        <section id="securityView" class="view">
+          <section class="panel" id="websiteCredentialPanel">
+            <div class="panel-head"><h2>默认网站密码</h2><span id="websiteCredentialState">正在读取状态</span></div>
+            <p>仅加密保存，不显示原文。不会更改任何网站密码，也不会自动尝试登录。以后使用时需为具体网站授权。</p>
+            <form id="websiteCredentialForm" class="security-form">
+              <label>默认密码<input id="websiteDefaultPassword" type="password" autocomplete="new-password" minlength="6" maxlength="128" required /></label>
+              <label>再次输入<input id="websiteDefaultConfirm" type="password" autocomplete="new-password" minlength="6" maxlength="128" required /></label>
+              <p>支持 6–128 个字符，包括中文和 @#￥% 等符号。留空不会修改已保存密码。</p>
+              <p id="websiteCredentialMessage" role="status"></p>
+              <button class="primary" type="submit">加密保存 / 更新</button>
+              <button class="ghost" type="button" id="disableWebsiteCredential">停用</button>
+            </form>
+            <h3>已保存的网站账号</h3>
+            <p>按完整 HTTPS 域名和账号匹配。通过浏览器扩展填入，确认登录成功后保存；密码不回显。</p>
+            <button type="button" class="ghost" id="refreshWebsiteAccounts">刷新网站列表</button>
+            <div id="websiteAccounts"></div>
+          </section>
+          <div class="section-intro"><div><p>CONTROL-PLANE SECURITY</p><h2>Sessions, password rotation and browser protections</h2></div><span class="safe-label">Local administrator</span></div>
+          <div class="security-grid">
+            <section class="panel">
+              <div class="panel-head"><div><p>ACTIVE SESSIONS</p><h2>Authenticated devices</h2></div><span id="sessionCount" class="count">0</span></div>
+              <div id="securitySessions" class="session-list"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-head"><div><p>PASSWORD ROTATION</p><h2>Change administrator password</h2></div><span class="safe-label">Revokes every session</span></div>
+              <form id="passwordForm" class="security-form">
+                <label>Current password<input id="currentPassword" type="password" autocomplete="current-password" required /></label>
+                <label>New password<input id="newPassword" type="password" autocomplete="new-password" required minlength="6" maxlength="128" /></label>
+                <label>Confirm new password<input id="confirmPassword" type="password" autocomplete="new-password" required minlength="6" maxlength="128" /></label>
+                <p id="passwordError" class="form-error" role="alert"></p>
+                <button class="primary" type="submit">Change password and sign out</button>
+              </form>
+            </section>
+            <section class="panel execution-policy">
+              <div class="panel-head"><div><p>PROVIDER EXECUTION BOUNDARY</p><h2>Live traffic activation gate</h2></div><span id="executionGateLabel" class="safe-label">Loading</span></div>
+              <div id="executionPolicy" class="execution-policy-grid"></div>
+              <div id="executionRequirements" class="execution-requirements"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="providerDialog">
+      <form method="dialog">
+        <div class="dialog-head"><div><p>WRITE-ONLY VAULT</p><h2>Store or rotate credential</h2></div><button type="button" class="close-dialog" aria-label="Close">×</button></div>
+        <p class="dialog-copy">The secret is encrypted server-side with AES-256-GCM. Only its status and fingerprint can be read back.</p>
+        <label>Provider<select id="credentialProvider" required></select></label>
+        <label>Secret value<input id="credentialSecret" type="password" autocomplete="off" minlength="8" maxlength="8192" required placeholder="Write-only — never displayed again" /></label>
+        <p id="credentialError" class="form-error" role="alert"></p>
+        <div class="dialog-actions"><button type="button" class="ghost close-dialog">Cancel</button><button type="submit" class="primary" id="credentialSubmit">Encrypt and store</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="newProviderDialog">
+      <form id="newProviderForm">
+        <div class="dialog-head"><div><p>PROVIDER ONBOARDING</p><h2>Add provider account</h2></div><button type="button" class="close-new-provider" aria-label="Close">×</button></div>
+        <p class="dialog-copy">Metadata and quota provenance remain readable. The credential is write-only and encrypted in the local vault.</p>
+        <label>Provider name<input id="newProviderName" required minlength="2" maxlength="100" placeholder="e.g. Example AI" /></label>
+        <label>Provider ID<input id="newProviderId" required maxlength="50" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="example-ai" /></label>
+        <label>Category<input id="newProviderCategory" required minlength="2" maxlength="80" placeholder="e.g. Text generation" /></label>
+        <label>Official website<input id="newProviderWebsite" type="url" required placeholder="https://example.com" /></label>
+        <label>Documentation URL<input id="newProviderDocs" type="url" required placeholder="https://example.com/docs" /></label>
+        <label>Developer console URL<input id="newProviderConsole" type="url" required placeholder="https://console.example.com" /></label>
+        <label>API base URL<input id="newProviderApiBase" type="url" required placeholder="https://api.example.com/v1" /></label>
+        <label>Environment<select id="newProviderEnvironment"><option value="development">Development</option><option value="sandbox">Sandbox</option></select></label>
+        <label>Secret value<input id="newProviderSecret" type="password" autocomplete="off" required minlength="8" maxlength="8192" placeholder="Write-only — encrypted immediately" /></label>
+        <label>Remaining quota (%)<input id="newProviderQuota" type="number" required min="0" max="100" step="1" value="100" /></label>
+        <label>Quota unit<input id="newProviderQuotaUnit" required minlength="2" maxlength="80" value="% policy allowance" /></label>
+        <label>Quota source<select id="newProviderQuotaSource"><option value="unknown">Unknown</option><option value="manual">Manual</option><option value="estimated">Estimated</option></select></label>
+        <p id="newProviderError" class="form-error" role="alert"></p>
+        <div class="dialog-actions"><button type="button" class="ghost close-new-provider">Cancel</button><button type="submit" class="primary">Encrypt and add provider</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="providerMetricsDialog">
+      <form id="providerMetricsForm">
+        <div class="dialog-head"><div><p>METRIC SNAPSHOT</p><h2>Record provider usage</h2></div><button type="button" class="close-provider-metrics" aria-label="Close">×</button></div>
+        <p class="dialog-copy">Each update preserves an immutable snapshot. Human entry cannot claim official provider API provenance.</p>
+        <input id="metricsProviderId" type="hidden" />
+        <label>Provider<strong id="metricsProviderName"></strong></label>
+        <label>Remaining quota (%)<input id="metricsRemaining" type="number" required min="0" max="100" step="1" /></label>
+        <label>Quota unit<input id="metricsUnit" required minlength="2" maxlength="80" /></label>
+        <label>Source<select id="metricsSource"><option value="manual">Manual</option><option value="estimated">Estimated</option><option value="unknown">Unknown</option></select></label>
+        <label>Month cost<input id="metricsMonthCost" type="number" required min="0" max="1000000000" step="0.01" /></label>
+        <label>Peak requests/min<input id="metricsPeakRpm" type="number" required min="0" max="1000000" step="1" /></label>
+        <p id="metricsError" class="form-error" role="alert"></p>
+        <div class="dialog-actions"><button type="button" class="ghost close-provider-metrics">Cancel</button><button type="submit" class="primary">Record snapshot</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="applicationTokenDialog">
+      <form id="applicationTokenForm">
+        <div class="dialog-head"><div><p>APPLICATION IDENTITY</p><h2>Issue gateway token</h2></div><button type="button" class="close-token-dialog" aria-label="Close">×</button></div>
+        <div id="tokenIssueStage">
+          <p class="dialog-copy">The token is scoped to one application and its granted capabilities. It expires after 90 days.</p>
+          <input id="tokenApplicationId" type="hidden" />
+          <label>Application<strong id="tokenApplicationName"></strong></label>
+          <label>Token label<input id="tokenLabel" required minlength="2" maxlength="80" placeholder="e.g. Mnemo local development" /></label>
+          <p id="tokenError" class="form-error" role="alert"></p>
+          <div class="dialog-actions"><button type="button" class="ghost close-token-dialog">Cancel</button><button type="submit" class="primary">Issue one-time token</button></div>
+        </div>
+        <div id="tokenRevealStage" class="hidden">
+          <p class="dialog-copy"><strong>Copy this token now.</strong> API Hub stores only its SHA-256 hash and cannot display it again.</p>
+          <textarea id="issuedToken" readonly rows="4"></textarea>
+          <div class="dialog-actions"><button type="button" class="ghost" id="copyTokenButton">Copy token</button><button type="button" class="primary close-token-dialog">Done</button></div>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="applicationDialog">
+      <form id="applicationForm">
+        <div class="dialog-head"><div><p>NEW SAAS CONNECTION</p><h2>Register application</h2></div><button type="button" class="close-application-dialog" aria-label="Close">×</button></div>
+        <p class="dialog-copy">Create one server identity boundary for a SaaS product, then grant only the capabilities it needs.</p>
+        <label>Application name<input id="applicationName" required minlength="2" maxlength="100" placeholder="e.g. Customer Research Studio" /></label>
+        <label>Application ID<input id="applicationId" required maxlength="50" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="customer-research-studio" /></label>
+        <label>Environment<select id="applicationEnvironment"><option value="development">Development</option><option value="sandbox">Sandbox</option></select></label>
+        <label>Monthly policy budget<input id="applicationBudget" type="number" required min="1" max="1000000" step="1" value="25" /></label>
+        <fieldset id="applicationCapabilities"><legend>Initial capability grants</legend></fieldset>
+        <p id="applicationError" class="form-error" role="alert"></p>
+        <div class="dialog-actions"><button type="button" class="ghost close-application-dialog">Cancel</button><button type="submit" class="primary">Register and grant</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="agentDialog">
+      <form id="agentForm">
+        <div class="dialog-head"><div><p>DELEGATED IDENTITY</p><h2>Register a short-lived agent</h2></div><button type="button" class="close-agent-dialog" aria-label="Close">×</button></div>
+        <div id="agentCreateStage">
+          <p class="dialog-copy">An agent can receive only a subset of its application's enabled capabilities. Its first token is shown once.</p>
+          <label>Agent name<input id="agentName" required minlength="2" maxlength="100" placeholder="e.g. Research worker" /></label>
+          <label>Agent ID<input id="agentId" required maxlength="60" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="research-worker" /></label>
+          <label>Application<select id="agentApplication" required></select></label>
+          <label>Agent lifetime (hours)<input id="agentLifetime" type="number" min="1" max="720" step="1" value="168" required /></label>
+          <div><span class="meta-label">Delegated capabilities</span><div id="agentCapabilities"></div></div>
+          <p id="agentError" class="form-error" role="alert"></p>
+          <div class="dialog-actions"><button type="button" class="ghost close-agent-dialog">Cancel</button><button type="submit" class="primary">Register and issue token</button></div>
+        </div>
+        <div id="agentRevealStage" class="hidden">
+          <p class="dialog-copy"><strong>Copy this agent token now.</strong> It expires within 24 hours and API Hub stores only its hash.</p>
+          <textarea id="issuedAgentToken" readonly rows="4"></textarea>
+          <div class="dialog-actions"><button type="button" class="ghost" id="copyAgentTokenButton">Copy token</button><button type="button" class="primary close-agent-dialog">Done</button></div>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="capabilityDialog">
+      <form id="capabilityForm">
+        <div class="dialog-head"><div><p>CONTRACT CANDIDATE</p><h2>Propose capability</h2></div><button type="button" class="close-capability-dialog" aria-label="Close">×</button></div>
+        <p class="dialog-copy">A proposal is invisible to applications until you explicitly activate it after review.</p>
+        <label>Capability ID<input id="capabilityId" required maxlength="100" pattern="[a-z0-9]+(?:[._-][a-z0-9]+)+" placeholder="research.web.search" /></label>
+        <label>Human label<input id="capabilityLabel" required minlength="2" maxlength="100" /></label>
+        <label>Description<textarea id="capabilityDescription" required minlength="10" maxlength="1000" rows="3"></textarea></label>
+        <label>Primary provider<select id="capabilityPrimaryProvider" required></select></label>
+        <label>Fallback provider<select id="capabilityFallbackProvider"><option value="">None</option></select></label>
+        <label>Data classification<select id="capabilityDataClassification"><option value="internal">Internal</option><option value="public">Public</option><option value="confidential">Confidential</option><option value="restricted">Restricted</option></select></label>
+        <label>Retention policy<select id="capabilityRetention"><option value="metadata_only">Metadata only</option><option value="none">None</option><option value="ephemeral">Ephemeral</option></select></label>
+        <label>Input contract (JSON)<textarea id="capabilityInputContract" required rows="6">{"type":"object","additionalProperties":false,"required":[],"properties":{}}</textarea></label>
+        <label>Output contract (JSON)<textarea id="capabilityOutputContract" required rows="6">{"type":"object","properties":{}}</textarea></label>
+        <p id="capabilityError" class="form-error" role="alert"></p>
+        <div class="dialog-actions"><button type="button" class="ghost close-capability-dialog">Cancel</button><button type="submit" class="primary">Save candidate</button></div>
+      </form>
+    </dialog>
+
+    <script src="/i18n.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>

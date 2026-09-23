@@ -1,0 +1,13 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>API Hub 网站登录</title>
+<style>body{font:14px system-ui;width:340px;padding:16px;color:#17232f}label,input,button{display:block;margin:10px 0}input{box-sizing:border-box;width:100%;padding:8px}button{padding:9px;width:100%}#status{white-space:pre-wrap}small{color:#526170}</style>
+<h2>网站登录</h2><p id="origin"></p>
+<label>网站账号<input id="username" autocomplete="username"></label>
+<button id="fill">已确认此网站：查记录或试默认密码一次</button>
+<p id="status" role="status"></p>
+<button id="success" disabled>我已确认登录成功，保存对应关系</button>
+<button id="failure" disabled>失败 / 需要人工处理，停止尝试</button>
+<details><summary>默认密码失败后，由本人填写</summary>
+<label>本次网站密码<input id="manual" type="password" autocomplete="new-password" maxlength="128"></label>
+<button id="manualFill">本人输入完成，填入一次</button></details>
+<small>仅对当前 HTTPS 页面操作。请保持同浏览器中的 Hub 已登录。扩展只填入，不点击网站登录按钮。跳转不代表成功。</small>
+<script src="popup.js"></script></html>

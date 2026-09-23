@@ -1,0 +1,65 @@
+version: 1
+status: active
+governance_root: CCOS
+primary_domain: api_hub
+
+cold_start_required:
+  - CCOS/START_HERE.md
+  - CCOS/CONTROL_INDEX.yaml
+  - CCOS/01_domains/api_hub/domain_master.yaml
+  - PRODUCT_CONTRACT.md
+
+authority_order:
+  - current_system_developer_user_instructions
+  - CCOS/CONTROL_INDEX.yaml
+  - CCOS/01_domains/api_hub/domain_master.yaml
+  - PRODUCT_CONTRACT.md
+  - implementation_and_generated_output
+
+autonomy:
+  proceed_without_confirmation:
+    - local_source_change_inside_declared_paths
+    - mock_or_synthetic_fixture_change
+    - local_test_and_generated_output
+  require_confirmation:
+    - real_secret_import
+    - external_storage_root
+    - public_deployment
+    - billing_or_payment_mutation
+    - production_provider_invocation
+    - new_public_capability_contract
+    - destructive_or_irreversible_change
+
+write_scope:
+  allowed:
+    - AGENTS.md
+    - PRODUCT_CONTRACT.md
+    - README.md
+    - package.json
+    - server.js
+    - public/**
+    - src/**
+    - tests/**
+    - docs/**
+    - data/mock/**
+    - data/runtime/**
+    - CCOS/**
+  forbidden:
+    - plaintext_real_secrets
+    - provider_tokens_in_source
+    - unrestricted_proxy
+    - external_project_writes_without_control_decision
+
+local_storage:
+  path: data/runtime/**
+  owner: api_hub
+  lifecycle: durable_local_application_state
+  access: server_side_only
+  allowed_content:
+    - synthetic_mvp_records
+    - schema_and_migration_state
+    - encrypted_secret_ciphertext_after_vault_activation
+  forbidden_content:
+    - plaintext_provider_secrets
+    - browser_readable_credentials
+  backup_and_export: requires_explicit_user_confirmation

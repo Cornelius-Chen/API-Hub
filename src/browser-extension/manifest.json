@@ -1,0 +1,9 @@
+{
+  "manifest_version": 3,
+  "name": "API Hub Website Login",
+  "version": "0.1.0",
+  "description": "Fill one approved website from your private API Hub; confirm success before saving.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["https://msi.tail4dd8cd.ts.net/*"],
+  "action": {"default_popup": "popup.html", "default_title": "API Hub 网站登录"}
+}

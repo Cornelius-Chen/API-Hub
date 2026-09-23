@@ -1,0 +1,34 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { DatabaseSync } = require('node:sqlite');
+const { reset } = require('../scripts/reset-local-password');
+const { verifyPassword } = require('../src/security');
+const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hub-recovery-test-'));
+const file = path.join(dir, 'synthetic.sqlite');
+const db = new DatabaseSync(file);
+try {
+  db.exec(`CREATE TABLE auth_accounts(id INTEGER PRIMARY KEY, workspace_id TEXT, username TEXT, password_salt BLOB, password_hash BLOB);
+    CREATE TABLE auth_sessions(account_id INTEGER);
+    CREATE TABLE audit_events(workspace_id TEXT, display_time TEXT, actor TEXT, action TEXT, outcome TEXT, detail TEXT);
+    CREATE TABLE providers(value TEXT);
+    INSERT INTO auth_accounts VALUES(1,'owner','test-owner',X'00',X'00');
+    INSERT INTO auth_sessions VALUES(1);
+    INSERT INTO providers VALUES('synthetic-preserve-me');`);
+  assert.throws(() => reset(file, 'test-owner', 'short'));
+  assert.throws(() => reset(file, 'absent', 'synthetic-new-password'));
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM auth_sessions').get().n, 1);
+  reset(file, 'test-owner', 'synthetic-new-password');
+  const row = db.prepare('SELECT password_salt, password_hash FROM auth_accounts').get();
+  assert.ok(verifyPassword('synthetic-new-password', row.password_salt, row.password_hash));
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM auth_sessions').get().n, 0);
+  assert.equal(db.prepare('SELECT value FROM providers').get().value, 'synthetic-preserve-me');
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM audit_events').get().n, 1);
+  const unicode = '@#￥%中文';
+  assert.equal(unicode.length, 6);
+  reset(file, 'test-owner', unicode);
+  const changed = db.prepare('SELECT password_salt, password_hash FROM auth_accounts').get();
+  assert.ok(verifyPassword(unicode, changed.password_salt, changed.password_hash));
+  console.log('Synthetic recovery: password replacement, rollback, session revocation, data preservation passed');
+} finally { db.close(); fs.rmSync(file); fs.rmdirSync(dir); }
