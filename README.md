@@ -1,8 +1,38 @@
 # API Hub
 
+[![Verify](https://github.com/Cornelius-Chen/API-Hub/actions/workflows/verify.yml/badge.svg)](https://github.com/Cornelius-Chen/API-Hub/actions/workflows/verify.yml)
+
 Local API capability control plane MVP. This source release excludes local
 runtime databases, vault keys, credentials, and generated packages. It is not a
 production secret vault.
+
+## What a client actually uses
+
+```js
+const { ApiHubClient } = require("@local/api-hub-client");
+
+const hub = new ApiHubClient({
+  baseUrl: process.env.API_HUB_URL,
+  token: process.env.API_HUB_APP_TOKEN,
+});
+
+const granted = await hub.capabilities();
+const result = await hub.invoke("ai.text.generate", { prompt: "Hello" });
+```
+
+The application supplies a scoped token and a stable capability name. It does
+not receive a provider credential or choose an arbitrary provider URL. Without
+an explicit live activation, the Gateway records a dry-run decision and sends
+no provider request. See the [SDK example](src/sdk/node/README.md) and
+[Gateway contract](docs/GATEWAY_API.md).
+
+| The caller can inspect | API Hub keeps server-side |
+| --- | --- |
+| Granted capability contract and its remaining allowance | Provider credential, workspace route, policy decision, and audit record |
+
+Use a disposable synthetic credential when walking through the UI locally.
+
+## Architecture
 
 ![API Hub architecture](docs/images/architecture.png)
 
