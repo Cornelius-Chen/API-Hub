@@ -14,4 +14,4 @@ screen and the authenticated control plane.
   English restores the original source text.
 
 The browser language chooses the first default when no preference exists.
-Users can switch at any time with the `中文 / EN` control.
+Users can switch languages at any time with the bilingual control.

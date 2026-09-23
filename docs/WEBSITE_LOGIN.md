@@ -35,7 +35,7 @@ token. All website routes reject ordinary API tokens without a browser session.
 4. On failure, mark failure; it saves nothing and will not retry the default.
    The user may privately enter the correct password in the extension manual
    section and fill once, then confirm success. No agent reads the field.
-5. Inspect/disable saved accounts at Hub > Security > 已保存的网站账号. Disabling
+5. Inspect/disable saved accounts in the Hub's Security view under Saved website accounts. Disabling
    a saved account blocks fallback to the default. Replacing the default does not
    overwrite previously confirmed site passwords.
 

@@ -81,7 +81,7 @@ For a Windows package that does not require Node.js to be installed, use
 The archive contains a bundled runtime, its own launcher, a file-integrity
 manifest, and no development database, vault key, or `.env` file.
 
-The login screen and authenticated control plane provide a `中文 / EN`
+The login screen and authenticated control plane provide a Chinese/English
 language switch. The selection is stored only in browser-local preferences and
 does not translate or rewrite database records, audit evidence, or credentials.
 
